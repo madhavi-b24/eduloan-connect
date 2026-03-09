@@ -1,0 +1,1 @@
+web: gunicorn eduloan_backend.wsgi
