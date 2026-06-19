@@ -1,11 +1,51 @@
 from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .models import Student, Bank, LoanBid,LoanCriteria
-from .serializers import StudentSerializer, BankSerializer, LoanBidSerializer
+from .serializers import StudentSerializer, BankSerializer, LoanBidSerializer, StudentRegistrationSerializer, StudentLoginSerializer
 from django.http import HttpResponse
+from django.contrib.auth import login as django_login
+from django.contrib.auth import logout as django_logout
 import math
 from reportlab.pdfgen import canvas
 from django.shortcuts import get_object_or_404
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def student_register(request):
+    serializer = StudentRegistrationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response(serializer.to_representation(user), status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def student_login(request):
+    serializer = StudentLoginSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        django_login(request, user)
+        return Response({
+            'message': 'Login successful',
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.profile.role,
+            },
+        })
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def student_logout(request):
+    django_logout(request)
+    return Response({'message': 'Logout successful'})
 
 
 @api_view(['GET', 'POST'])
