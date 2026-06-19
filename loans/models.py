@@ -134,3 +134,18 @@ class LoanApplication(models.Model):
 
     def __str__(self):
         return f"{self.applicant.user.username} - {self.loan_product.product_name}"
+
+
+class ApplicationStatusEvent(models.Model):
+    application = models.ForeignKey(LoanApplication, on_delete=models.CASCADE)
+    old_status = models.CharField(max_length=20, choices=LoanApplication.STATUS_CHOICES)
+    new_status = models.CharField(max_length=20, choices=LoanApplication.STATUS_CHOICES)
+    note = models.TextField(blank=True)
+    changed_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.application_id}: {self.old_status} -> {self.new_status}"

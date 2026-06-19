@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Student, Bank, LoanBid, LoanCriteria, Profile, LoanProduct, LoanApplication
+from .models import (
+    Student,
+    Bank,
+    LoanBid,
+    LoanCriteria,
+    Profile,
+    LoanProduct,
+    LoanApplication,
+    ApplicationStatusEvent,
+)
 
 admin.site.register(Student)
 admin.site.register(Bank)
@@ -52,4 +61,26 @@ class LoanApplicationAdmin(admin.ModelAdmin):
         'remarks',
     )
     list_filter = ('status', 'loan_product__bank', 'created_at', 'updated_at')
+    ordering = ('-created_at',)
+
+
+@admin.register(ApplicationStatusEvent)
+class ApplicationStatusEventAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'application',
+        'old_status',
+        'new_status',
+        'changed_by',
+        'created_at',
+    )
+    search_fields = (
+        'application__applicant__user__username',
+        'application__applicant__user__email',
+        'application__loan_product__product_name',
+        'changed_by__username',
+        'changed_by__email',
+        'note',
+    )
+    list_filter = ('old_status', 'new_status', 'changed_by', 'created_at')
     ordering = ('-created_at',)
