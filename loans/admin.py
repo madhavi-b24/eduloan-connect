@@ -8,6 +8,7 @@ from .models import (
     LoanProduct,
     LoanApplication,
     ApplicationStatusEvent,
+    EligibilityResult,
 )
 
 admin.site.register(Student)
@@ -83,4 +84,25 @@ class ApplicationStatusEventAdmin(admin.ModelAdmin):
         'note',
     )
     list_filter = ('old_status', 'new_status', 'changed_by', 'created_at')
+    ordering = ('-created_at',)
+
+
+@admin.register(EligibilityResult)
+class EligibilityResultAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'profile',
+        'loan_product',
+        'application',
+        'eligible',
+        'score',
+        'created_at',
+    )
+    search_fields = (
+        'profile__user__username',
+        'profile__user__email',
+        'loan_product__product_name',
+        'loan_product__bank__name',
+    )
+    list_filter = ('eligible', 'loan_product__bank', 'created_at')
     ordering = ('-created_at',)

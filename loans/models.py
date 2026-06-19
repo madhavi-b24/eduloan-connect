@@ -149,3 +149,25 @@ class ApplicationStatusEvent(models.Model):
 
     def __str__(self):
         return f"{self.application_id}: {self.old_status} -> {self.new_status}"
+
+
+class EligibilityResult(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    loan_product = models.ForeignKey(LoanProduct, on_delete=models.CASCADE)
+    application = models.ForeignKey(
+        LoanApplication,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    eligible = models.BooleanField()
+    score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    reasons = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        status = "Eligible" if self.eligible else "Not eligible"
+        return f"{self.profile.user.username} - {self.loan_product.product_name}: {status}"
