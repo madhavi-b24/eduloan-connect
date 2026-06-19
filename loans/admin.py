@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Student, Bank, LoanBid, LoanCriteria, Profile, LoanProduct
+from .models import Student, Bank, LoanBid, LoanCriteria, Profile, LoanProduct, LoanApplication
 
 admin.site.register(Student)
 admin.site.register(Bank)
@@ -28,3 +28,28 @@ class LoanProductAdmin(admin.ModelAdmin):
     )
     search_fields = ('product_name', 'bank__name', 'description')
     list_filter = ('bank', 'collateral_required', 'active')
+
+
+@admin.register(LoanApplication)
+class LoanApplicationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'applicant',
+        'legacy_student',
+        'loan_product',
+        'requested_amount',
+        'requested_tenure_years',
+        'status',
+        'created_at',
+        'updated_at',
+    )
+    search_fields = (
+        'applicant__user__username',
+        'applicant__user__email',
+        'legacy_student__name',
+        'legacy_student__email',
+        'loan_product__product_name',
+        'remarks',
+    )
+    list_filter = ('status', 'loan_product__bank', 'created_at', 'updated_at')
+    ordering = ('-created_at',)

@@ -96,3 +96,41 @@ class LoanProduct(models.Model):
 
     def __str__(self):
         return f"{self.bank.name} - {self.product_name}"
+
+
+class LoanApplication(models.Model):
+    STATUS_DRAFT = 'draft'
+    STATUS_SUBMITTED = 'submitted'
+    STATUS_UNDER_REVIEW = 'under_review'
+    STATUS_ELIGIBLE = 'eligible'
+    STATUS_OFFER_GENERATED = 'offer_generated'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_ACCEPTED = 'accepted'
+
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, 'Draft'),
+        (STATUS_SUBMITTED, 'Submitted'),
+        (STATUS_UNDER_REVIEW, 'Under Review'),
+        (STATUS_ELIGIBLE, 'Eligible'),
+        (STATUS_OFFER_GENERATED, 'Offer Generated'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_ACCEPTED, 'Accepted'),
+    ]
+
+    applicant = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    legacy_student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
+    loan_product = models.ForeignKey(LoanProduct, on_delete=models.PROTECT)
+    requested_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    requested_tenure_years = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DRAFT)
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.applicant.user.username} - {self.loan_product.product_name}"
