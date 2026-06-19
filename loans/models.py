@@ -171,3 +171,26 @@ class EligibilityResult(models.Model):
     def __str__(self):
         status = "Eligible" if self.eligible else "Not eligible"
         return f"{self.profile.user.username} - {self.loan_product.product_name}: {status}"
+
+
+class LoanRecommendation(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    loan_product = models.ForeignKey(LoanProduct, on_delete=models.CASCADE)
+    application = models.ForeignKey(
+        LoanApplication,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    rank = models.PositiveIntegerField(default=1)
+    score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    estimated_emi = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_repayment = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-score']
+
+    def __str__(self):
+        return f"{self.profile.user.username} - {self.loan_product.product_name} (Rank {self.rank})"

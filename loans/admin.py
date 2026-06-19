@@ -9,6 +9,7 @@ from .models import (
     LoanApplication,
     ApplicationStatusEvent,
     EligibilityResult,
+    LoanRecommendation,
 )
 
 admin.site.register(Student)
@@ -106,3 +107,27 @@ class EligibilityResultAdmin(admin.ModelAdmin):
     )
     list_filter = ('eligible', 'loan_product__bank', 'created_at')
     ordering = ('-created_at',)
+
+
+@admin.register(LoanRecommendation)
+class LoanRecommendationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'profile',
+        'loan_product',
+        'application',
+        'rank',
+        'score',
+        'estimated_emi',
+        'total_repayment',
+        'created_at',
+    )
+    search_fields = (
+        'profile__user__username',
+        'profile__user__email',
+        'loan_product__product_name',
+        'loan_product__bank__name',
+        'reason',
+    )
+    list_filter = ('loan_product__bank', 'created_at')
+    ordering = ('-score',)
